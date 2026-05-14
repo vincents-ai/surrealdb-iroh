@@ -51,7 +51,7 @@ opentelemetry-otlp = { version = "0.17", optional = true }
 opentelemetry_sdk = { version = "0.26", features = ["rt-tokio"], optional = true }
 tracing-opentelemetry = { version = "0.27", optional = true }
 metrics = { version = "0.24", optional = true }
-metrics-exporter-prometheus = { version = "0.17", optional = true }
+metrics-exporter-prometheus = { version = "0.18", optional = true }
 zstd = { version = "0.13", optional = true }
 
 [dev-dependencies]
