@@ -1,0 +1,92 @@
+Business Source License 1.1
+
+Parameters
+
+Licensor:             Vincent Palmer
+Licensed Work:        surrealdb-iroh 0.1.0
+                      The Licensed Work is (c) 2025 Vincent Palmer
+Additional Use Grant: You may make use of the Licensed Work, provided that
+                      you may not use the Licensed Work as a Database
+                      Service.
+
+                      "Database Service" means any product, service,
+                      platform, or commercial offering in which the Licensed
+                      Work is used to provide database functionality to
+                      third parties, other than your direct employees or
+                      contractors working on your behalf, that enables third
+                      parties to create, manage, or control schemas or
+                      tables.
+
+Change Date:          2031-05-13
+
+Change License:       Apache License, Version 2.0
+
+For information about alternative licensing arrangements for the Software,
+please visit: https://github.com/vincents-ai/surrealdb-iroh
+
+Notice
+
+The Business Source License (this document, or the "License") is not an Open
+Source license. However, the Licensed Work will eventually be made available
+under the Change License.
+
+The Licensor provides the Licensed Work on an "AS IS" basis, without
+warranties of any kind, either express or implied, including, but not
+limited to, warranties of merchantability, fitness for a particular purpose,
+non-infringement, and title. The Licensor does not warrant that the Licensed
+Work does not infringe any third party rights.
+
+The Licensor shall not be held liable for any claim or demand made against
+you by any party other than the Licensor, except for willful misconduct or
+gross negligence. In the event of a claim, you may seek indemnification
+from the Licensor as described in the License.
+
+If any provision of this License is held unenforceable, that provision is
+deemed removed from this License, but the License continues to be enforced
+to the maximum extent permitted by law.
+
+Take a Test Drive clause:
+
+The Licensor grants you the right to make and use the Licensed Work for a
+period of 90 days from the date the Licensor makes the Licensed Work
+available. This allows you to evaluate the Licensed Work before deciding
+whether to purchase a commercial license.
+
+Trial Use Limitation:
+
+If you use the Licensed Work for production purposes or provide it to third
+parties as a service, you must obtain a commercial license from the Licensor.
+
+After 90 days, you must either:
+(a) purchase a commercial license from the Licensor, or
+(b) stop using the Licensed Work and remove all copies from your systems.
+
+This License does not grant you any right in any trademark or logo of
+the Licensor or its affiliates (provided that you may use a trademark or
+logo of the Licensor as expressly required by this License).
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+AN "AS IS" BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+TITLE.
+
+Covenants of Licensor
+
+In consideration of the right to use this License's text and the "Business
+Source License" name and trademark, Licensor covenants:
+
+1. To specify as the Change License the GPL Version 2.0 or any later version,
+   or a license that is compatible with GPL Version 2.0 or a later version,
+   where "compatible" means that software provided under the Change License can
+   be included in a program with software provided under GPL Version 2.0 or a
+   later version. Licensor may specify additional Change Licenses without
+   limitation.
+
+2. To either: (a) specify an additional grant of rights to use that does not
+   impose any additional restriction on the right granted in this License, as
+   the Additional Use Grant; or (b) insert the text "None".
+
+3. To specify a Change Date.
+
+4. Not to modify this License in any other way.
