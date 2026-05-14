@@ -9,26 +9,26 @@ A P2P (peer-to-peer) replication layer for SurrealDB embedded databases using th
 This crate wraps SurrealDB embedded mode and adds replication capabilities:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Your Application                          │
-│                                                             │
-│   ┌───────────────────────┐      ┌─────────────────────┐   │
-│   │    SurrealDB          │      │   surrealdb-iroh    │   │
-│   │    Embedded           │◀────▶│   Replication       │   │
-│   │                       │      │                     │   │
-│   │   - Your data         │      │   - Change batching │   │
-│   │   - Queries           │      │   - P2P sync        │   │
-│   └───────────────────────┘      │   - Peer discovery │   │
-│                                    └──────────┬──────────┘   │
-│                                               │               │
-│                           ┌───────────────────┼───────────┐  │
-│                           │                   │           │  │
-│                           ▼                   ▼           │  │
-│                    ┌─────────────┐     ┌─────────────┐    │  │
-│                    │   Peer A    │◀────▶│   Peer B    │    │  │
-│                    │  (your app) │     │ (other app) │    │  │
-│                    └─────────────┘     └─────────────┘    │  │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                    Your Application                         │
+│                                                            │
+│   ┌───────────────────────┐      ┌────────────────────┐   │
+│   │    SurrealDB          │      │   surrealdb-iroh   │   │
+│   │    Embedded           │◀────▶│   Replication      │   │
+│   │                       │      │                    │   │
+│   │   - Your data         │      │   - Change batching│   │
+│   │   - Queries           │      │   - P2P sync       │   │
+│   └───────────────────────┘      │   - Peer discovery│   │
+│                                    └─────────┬──────────┘   │
+│                                              │              │
+│                          ┌───────────────────┼────────────┐  │
+│                          │                   │            │  │
+│                          ▼                   ▼            │  │
+│                   ┌─────────────┐     ┌─────────────┐     │  │
+│                   │   Peer A    │◀───▶│   Peer B    │     │  │
+│                   │  (your app) │     │ (other app) │     │  │
+│                   └─────────────┘     └─────────────┘     │  │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ## Integration
