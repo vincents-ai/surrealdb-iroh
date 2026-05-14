@@ -6,29 +6,17 @@ A P2P (peer-to-peer) replication layer for SurrealDB embedded databases using th
 
 ## What It Does
 
-This crate wraps SurrealDB embedded mode and adds replication capabilities:
+```mermaid
+graph TB
+    subgraph YourApp["Your Application"]
+        SurrealDB["SurrealDB Embedded"]
+        ReplicationLayer["surrealdb-iroh"]
+    end
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                    Your Application                         │
-│                                                            │
-│   ┌───────────────────────┐      ┌────────────────────┐   │
-│   │    SurrealDB          │      │   surrealdb-iroh   │   │
-│   │    Embedded           │◀────▶│   Replication      │   │
-│   │                       │      │                    │   │
-│   │   - Your data         │      │   - Change batching│   │
-│   │   - Queries           │      │   - P2P sync       │   │
-│   └───────────────────────┘      │   - Peer discovery│   │
-│                                    └─────────┬──────────┘   │
-│                                              │              │
-│                          ┌───────────────────┼────────────┐  │
-│                          │                   │            │  │
-│                          ▼                   ▼            │  │
-│                   ┌─────────────┐     ┌─────────────┐     │  │
-│                   │   Peer A    │◀───▶│   Peer B    │     │  │
-│                   │  (your app) │     │ (other app) │     │  │
-│                   └─────────────┘     └─────────────┘     │  │
-└────────────────────────────────────────────────────────────┘
+    SurrealDB <--> ReplicationLayer
+    ReplicationLayer -->|"P2P Sync"| PeerA["Peer A"]
+    ReplicationLayer -->|"P2P Sync"| PeerB["Peer B"]
+    PeerA <--> PeerB
 ```
 
 ## Integration
