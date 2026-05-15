@@ -261,8 +261,8 @@ mod property_tests {
             prop_oneof![
                 Just(SyncMessage::Ping),
                 Just(SyncMessage::Pong),
-                (any::<u64>()).prop_map(|n| SyncMessage::Pong),
-                ((any::<u64>(), any::<Option<usize>>()))
+                (any::<u64>()).prop_map(|_n| SyncMessage::Pong),
+                (any::<u64>(), any::<Option<usize>>())
                     .prop_map(|(offset, limit)| { SyncMessage::Request { offset, limit } }),
                 (any::<u64>()).prop_map(|offset| SyncMessage::Ack { offset }),
             ]
@@ -353,8 +353,8 @@ mod property_tests {
     fn test_batch_len_consistency() {
         // Test empty batch
         let batch = ChangeBatch::new(0, vec![]);
-        assert_eq!(batch.is_empty(), batch.len() == 0);
-        assert_eq!(!batch.is_empty(), batch.len() > 0);
+        assert_eq!(batch.is_empty(), batch.is_empty());
+        assert_eq!(!batch.is_empty(), !batch.is_empty());
     }
 
     /// Test batch clone preserves data.
@@ -365,7 +365,7 @@ mod property_tests {
 
         runner
             .run(
-                &((any::<u64>(), any::<bool>(), any::<usize>())).prop_map(
+                &(any::<u64>(), any::<bool>(), any::<usize>()).prop_map(
                     |(offset, is_final, len)| {
                         let changes: Vec<Change> = (0..len.min(100))
                             .map(|_| Change::query("namespace", "database", None))

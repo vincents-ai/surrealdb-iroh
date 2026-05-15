@@ -397,6 +397,6 @@ mod tests {
         // Note: record_change sends to a channel, so the offset isn't immediately updated.
         // The actual recording happens asynchronously in the replicator task.
         // We just verify that record_change doesn't panic and the replicator is created.
-        assert!(true, "record_change executed without error");
+        // record_change executed without error
     }
 }

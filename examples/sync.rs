@@ -41,12 +41,11 @@ use std::time::Duration;
 
 use anyhow::{anyhow, Result};
 use bytes::Bytes;
-use tracing::{error, info};
+use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use surrealdb_iroh::{
-    Change, ChangeEventType, ChangeNotifier, ChangeObserver, ReplicatorConfig, ReplicatorRunner,
-    StorageHook, SubscriptionFilter,
+    Change, ChangeNotifier, ReplicatorConfig, ReplicatorRunner, StorageHook, SubscriptionFilter,
 };
 
 /// Example 1: Basic peer-to-peer sync

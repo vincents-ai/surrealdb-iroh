@@ -9,8 +9,7 @@ use std::time::Duration;
 use bytes::Bytes;
 
 use surrealdb_iroh::{
-    Change, ChangeEvent, ChangeEventType, ChangeNotifier, ReplicatorConfig, StorageHook,
-    SubscriptionFilter,
+    Change, ChangeEvent, ChangeEventType, ChangeNotifier, StorageHook, SubscriptionFilter,
 };
 
 /// Test change notifier subscription.
@@ -43,10 +42,12 @@ async fn test_change_notifier() {
 }
 
 /// Test custom storage hook implementation.
+#[allow(dead_code)]
 struct TestHook {
     change_count: std::sync::Arc<AtomicUsize>,
 }
 
+#[allow(dead_code)]
 impl TestHook {
     fn new(count: std::sync::Arc<AtomicUsize>) -> Self {
         Self {
@@ -150,12 +151,7 @@ async fn test_multi_namespace_db() {
     let mut total_changes = 0;
     for ns in &namespaces {
         for db in &databases {
-            let change = Change::set(
-                ns.clone(),
-                db.clone(),
-                Bytes::from("key"),
-                Bytes::from("value"),
-            );
+            let change = Change::set(*ns, *db, Bytes::from("key"), Bytes::from("value"));
             total_changes += 1;
             assert_eq!(change.namespace, *ns);
             assert_eq!(change.database, *db);

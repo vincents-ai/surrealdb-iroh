@@ -433,7 +433,7 @@ mod tests {
     fn test_max_message_size_constant() {
         // Verify the constant is reasonable
         assert_eq!(MAX_MESSAGE_SIZE, 16 * 1024 * 1024);
-        assert!(MAX_MESSAGE_SIZE < usize::MAX);
+        const _: () = assert!(MAX_MESSAGE_SIZE < usize::MAX);
     }
 
     #[test]
