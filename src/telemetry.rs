@@ -105,18 +105,21 @@ pub const SPAN_RECEIVE_BATCH: &str = "receive.batch";
 
 /// Bucket boundaries for sync duration histogram (seconds).
 /// Covers: 10ms to ~80s for typical sync operations.
-pub const SYNC_DURATION_BOUNDARIES: &[f64] =
-	&[0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 1.28, 2.56, 5.12, 10.24, 20.48, 40.96, 81.92];
+pub const SYNC_DURATION_BOUNDARIES: &[f64] = &[
+    0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 1.28, 2.56, 5.12, 10.24, 20.48, 40.96, 81.92,
+];
 
 /// Bucket boundaries for connection latency histogram (seconds).
 /// Covers: 1ms to ~5s for connection establishment.
-pub const CONNECTION_LATENCY_BOUNDARIES: &[f64] =
-	&[0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0];
+pub const CONNECTION_LATENCY_BOUNDARIES: &[f64] = &[
+    0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0,
+];
 
 /// Bucket boundaries for bytes transferred histogram.
 /// Covers: 1KB to 100MB.
-pub const BYTES_TRANSFERRED_BOUNDARIES: &[f64] =
-	&[1024.0, 4096.0, 16384.0, 65536.0, 262144.0, 1048576.0, 4194304.0, 16777216.0, 67108864.0];
+pub const BYTES_TRANSFERRED_BOUNDARIES: &[f64] = &[
+    1024.0, 4096.0, 16384.0, 65536.0, 262144.0, 1048576.0, 4194304.0, 16777216.0, 67108864.0,
+];
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Metric Names (OTel: use dot notation, lowercase)
@@ -172,74 +175,76 @@ pub const METRIC_TICKETS_RESOLVED: &str = "iroh.sync.tickets.resolved";
 
 #[cfg(feature = "opentelemetry")]
 pub fn init_tracing(endpoint: &str, service_name: &str) -> anyhow::Result<()> {
-	// Create OTLP exporter
-	let exporter = opentelemetry_otlp::new_exporter().tonic().with_endpoint(endpoint);
+    // Create OTLP exporter
+    let exporter = opentelemetry_otlp::new_exporter()
+        .tonic()
+        .with_endpoint(endpoint);
 
-	// Create trace provider with resource attributes
-	let trace_provider = exporter
-		.build::<opentelemetry_otlp::SpanExporter>()?
-		.with_trace_config(opentelemetry_sdk::trace::Config::default().with_resource(
-			opentelemetry_sdk::Resource::new(vec![
-				opentelemetry_sdk::ResourceAttribute::new("service.name", service_name),
-				opentelemetry_sdk::ResourceAttribute::new("rpc.system", "iroh"),
-			]),
-		))
-		.start();
+    // Create trace provider with resource attributes
+    let trace_provider = exporter
+        .build::<opentelemetry_otlp::SpanExporter>()?
+        .with_trace_config(opentelemetry_sdk::trace::Config::default().with_resource(
+            opentelemetry_sdk::Resource::new(vec![
+                opentelemetry_sdk::ResourceAttribute::new("service.name", service_name),
+                opentelemetry_sdk::ResourceAttribute::new("rpc.system", "iroh"),
+            ]),
+        ))
+        .start();
 
-	// Create subscriber with tracing layer
-	let subscriber = tracing_subscriber::registry()
-		.with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
-		.with(tracing_opentelemetry::layer().with_tracer(trace_provider.tracer(service_name)));
+    // Create subscriber with tracing layer
+    let subscriber = tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(tracing_opentelemetry::layer().with_tracer(trace_provider.tracer(service_name)));
 
-	subscriber.init();
+    subscriber.init();
 
-	// Set global default tracer
-	opentelemetry::global::set_tracer_provider(trace_provider);
+    // Set global default tracer
+    opentelemetry::global::set_tracer_provider(trace_provider);
 
-	Ok(())
+    Ok(())
 }
 
 #[cfg(feature = "metrics")]
 pub fn init_metrics(addr: &str) -> anyhow::Result<()> {
-	// Describe counters
-	describe_counter!(METRIC_CONNECTIONS_INCOMING, "Total incoming connections");
-	describe_counter!(METRIC_CONNECTIONS_OUTGOING, "Total outgoing connections");
-	describe_counter!(METRIC_SYNC_SUCCESS, "Successful sync operations");
-	describe_counter!(METRIC_SYNC_FAILURE, "Failed sync operations");
-	describe_counter!(METRIC_BYTES_SENT, "Bytes sent");
-	describe_counter!(METRIC_BYTES_RECEIVED, "Bytes received");
-	describe_counter!(METRIC_RELAY_USED, "Relay connections used");
+    // Describe counters
+    describe_counter!(METRIC_CONNECTIONS_INCOMING, "Total incoming connections");
+    describe_counter!(METRIC_CONNECTIONS_OUTGOING, "Total outgoing connections");
+    describe_counter!(METRIC_SYNC_SUCCESS, "Successful sync operations");
+    describe_counter!(METRIC_SYNC_FAILURE, "Failed sync operations");
+    describe_counter!(METRIC_BYTES_SENT, "Bytes sent");
+    describe_counter!(METRIC_BYTES_RECEIVED, "Bytes received");
+    describe_counter!(METRIC_RELAY_USED, "Relay connections used");
 
-	// Describe gauges
-	describe_gauge!(METRIC_PEERS_ACTIVE, "Currently connected peers");
-	describe_gauge!(METRIC_CHANGES_PENDING, "Changes pending sync");
-	describe_gauge!(METRIC_POOL_SIZE, "Connection pool size");
+    // Describe gauges
+    describe_gauge!(METRIC_PEERS_ACTIVE, "Currently connected peers");
+    describe_gauge!(METRIC_CHANGES_PENDING, "Changes pending sync");
+    describe_gauge!(METRIC_POOL_SIZE, "Connection pool size");
 
-	// Describe histograms with explicit boundaries
-	describe_histogram!(
-		METRIC_SYNC_DURATION,
-		"Sync operation duration in seconds",
-		&SYNC_DURATION_BOUNDARIES
-	);
-	describe_histogram!(
-		METRIC_CONNECTION_LATENCY,
-		"Connection establishment latency in seconds",
-		&CONNECTION_LATENCY_BOUNDARIES
-	);
-	describe_histogram!(
-		"iroh.sync.bytes.transferred",
-		"Bytes transferred per operation",
-		&BYTES_TRANSFERRED_BOUNDARIES
-	);
+    // Describe histograms with explicit boundaries
+    describe_histogram!(
+        METRIC_SYNC_DURATION,
+        "Sync operation duration in seconds",
+        &SYNC_DURATION_BOUNDARIES
+    );
+    describe_histogram!(
+        METRIC_CONNECTION_LATENCY,
+        "Connection establishment latency in seconds",
+        &CONNECTION_LATENCY_BOUNDARIES
+    );
+    describe_histogram!(
+        "iroh.sync.bytes.transferred",
+        "Bytes transferred per operation",
+        &BYTES_TRANSFERRED_BOUNDARIES
+    );
 
-	// Create Prometheus exporter
-	let exporter = metrics_exporter_prometheus::PrometheusBuilder::new()
-		.with_address(addr.parse()?)
-		.build()?;
+    // Create Prometheus exporter
+    let exporter = metrics_exporter_prometheus::PrometheusBuilder::new()
+        .with_address(addr.parse()?)
+        .build()?;
 
-	metrics::global::set_metrics_exporter(exporter).map_err(|e| anyhow::anyhow!("{}", e))?;
+    metrics::global::set_metrics_exporter(exporter).map_err(|e| anyhow::anyhow!("{}", e))?;
 
-	Ok(())
+    Ok(())
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -248,75 +253,75 @@ pub fn init_metrics(addr: &str) -> anyhow::Result<()> {
 
 #[cfg(feature = "metrics")]
 pub fn record_connection_incoming() {
-	counter!(METRIC_CONNECTIONS_INCOMING).increment(1);
-	counter!(METRIC_CONNECTIONS_TOTAL).increment(1);
+    counter!(METRIC_CONNECTIONS_INCOMING).increment(1);
+    counter!(METRIC_CONNECTIONS_TOTAL).increment(1);
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_connection_outgoing() {
-	counter!(METRIC_CONNECTIONS_OUTGOING).increment(1);
-	counter!(METRIC_CONNECTIONS_TOTAL).increment(1);
+    counter!(METRIC_CONNECTIONS_OUTGOING).increment(1);
+    counter!(METRIC_CONNECTIONS_TOTAL).increment(1);
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_sync_success(duration: Duration) {
-	counter!(METRIC_SYNC_SUCCESS).increment(1);
-	counter!(METRIC_SYNC_TOTAL).increment(1);
-	histogram!(METRIC_SYNC_DURATION).record(duration.as_secs_f64());
+    counter!(METRIC_SYNC_SUCCESS).increment(1);
+    counter!(METRIC_SYNC_TOTAL).increment(1);
+    histogram!(METRIC_SYNC_DURATION).record(duration.as_secs_f64());
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_sync_failure(duration: Duration) {
-	counter!(METRIC_SYNC_FAILURE).increment(1);
-	counter!(METRIC_SYNC_TOTAL).increment(1);
-	histogram!(METRIC_SYNC_DURATION).record(duration.as_secs_f64());
+    counter!(METRIC_SYNC_FAILURE).increment(1);
+    counter!(METRIC_SYNC_TOTAL).increment(1);
+    histogram!(METRIC_SYNC_DURATION).record(duration.as_secs_f64());
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_bytes_sent(bytes: u64) {
-	counter!(METRIC_BYTES_SENT).increment(bytes);
-	counter!(METRIC_BYTES_TOTAL).increment(bytes);
+    counter!(METRIC_BYTES_SENT).increment(bytes);
+    counter!(METRIC_BYTES_TOTAL).increment(bytes);
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_bytes_received(bytes: u64) {
-	counter!(METRIC_BYTES_RECEIVED).increment(bytes);
-	counter!(METRIC_BYTES_TOTAL).increment(bytes);
+    counter!(METRIC_BYTES_RECEIVED).increment(bytes);
+    counter!(METRIC_BYTES_TOTAL).increment(bytes);
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_relay_used() {
-	counter!(METRIC_RELAY_USED).increment(1);
+    counter!(METRIC_RELAY_USED).increment(1);
 }
 
 #[cfg(feature = "metrics")]
 pub fn set_active_peers(count: usize) {
-	gauge!(METRIC_PEERS_ACTIVE).set(count as f64);
+    gauge!(METRIC_PEERS_ACTIVE).set(count as f64);
 }
 
 #[cfg(feature = "metrics")]
 pub fn set_pending_changes(count: usize) {
-	gauge!(METRIC_CHANGES_PENDING).set(count as f64);
+    gauge!(METRIC_CHANGES_PENDING).set(count as f64);
 }
 
 #[cfg(feature = "metrics")]
 pub fn set_pool_size(size: usize) {
-	gauge!(METRIC_POOL_SIZE).set(size as f64);
+    gauge!(METRIC_POOL_SIZE).set(size as f64);
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_connection_latency(duration: Duration) {
-	histogram!(METRIC_CONNECTION_LATENCY).record(duration.as_secs_f64());
+    histogram!(METRIC_CONNECTION_LATENCY).record(duration.as_secs_f64());
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_ticket_generated() {
-	counter!(METRIC_TICKETS_GENERATED).increment(1);
+    counter!(METRIC_TICKETS_GENERATED).increment(1);
 }
 
 #[cfg(feature = "metrics")]
 pub fn record_ticket_resolved() {
-	counter!(METRIC_TICKETS_RESOLVED).increment(1);
+    counter!(METRIC_TICKETS_RESOLVED).increment(1);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -325,12 +330,12 @@ pub fn record_ticket_resolved() {
 
 #[cfg(not(feature = "opentelemetry"))]
 pub fn init_tracing(_endpoint: &str, _service_name: &str) -> anyhow::Result<()> {
-	anyhow::bail!("opentelemetry feature not enabled")
+    anyhow::bail!("opentelemetry feature not enabled")
 }
 
 #[cfg(not(feature = "metrics"))]
 pub fn init_metrics(_addr: &str) -> anyhow::Result<()> {
-	anyhow::bail!("metrics feature not enabled")
+    anyhow::bail!("metrics feature not enabled")
 }
 
 #[cfg(not(feature = "opentelemetry"))]
@@ -377,7 +382,7 @@ pub fn record_ticket_resolved() {}
 
 #[cfg(feature = "opentelemetry")]
 pub fn shutdown() {
-	opentelemetry::global::shutdown_tracer_provider();
+    opentelemetry::global::shutdown_tracer_provider();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -393,7 +398,7 @@ pub fn shutdown() {
 /// ```
 #[inline]
 pub fn span_name(operation: &str, resource: &str) -> String {
-	format!("{operation} {resource}")
+    format!("{operation} {resource}")
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -402,30 +407,30 @@ pub fn span_name(operation: &str, resource: &str) -> String {
 
 /// Well-known `iroh.sync.connection.type` values.
 pub mod connection_type {
-	/// Direct peer-to-peer connection (no relay).
-	pub const DIRECT: &str = "direct";
-	/// Connection via relay server.
-	pub const RELAY: &str = "relay";
-	/// Hole-punched connection (initially relay, then direct).
-	pub const HOLE_PUNCHED: &str = "hole_punched";
+    /// Direct peer-to-peer connection (no relay).
+    pub const DIRECT: &str = "direct";
+    /// Connection via relay server.
+    pub const RELAY: &str = "relay";
+    /// Hole-punched connection (initially relay, then direct).
+    pub const HOLE_PUNCHED: &str = "hole_punched";
 }
 
 /// Well-known `iroh.sync.sync.direction` values.
 pub mod sync_direction {
-	/// Push changes to peer.
-	pub const PUSH: &str = "push";
-	/// Pull changes from peer.
-	pub const PULL: &str = "pull";
-	/// Bidirectional sync (push and pull).
-	pub const BIDIRECTIONAL: &str = "bidirectional";
+    /// Push changes to peer.
+    pub const PUSH: &str = "push";
+    /// Pull changes from peer.
+    pub const PULL: &str = "pull";
+    /// Bidirectional sync (push and pull).
+    pub const BIDIRECTIONAL: &str = "bidirectional";
 }
 
 /// Well-known `iroh.sync.sync.type` values.
 pub mod sync_type {
-	/// Full state snapshot sync.
-	pub const SNAPSHOT: &str = "snapshot";
-	/// Incremental change sync.
-	pub const INCREMENTAL: &str = "incremental";
+    /// Full state snapshot sync.
+    pub const SNAPSHOT: &str = "snapshot";
+    /// Incremental change sync.
+    pub const INCREMENTAL: &str = "incremental";
 }
 
 /// Normalize connection type to canonical value.
@@ -439,12 +444,12 @@ pub mod sync_type {
 /// ```
 #[inline]
 pub fn normalize_connection_type(value: &str) -> String {
-	match value.to_lowercase().as_str() {
-		"p2p" | "peer" | "direct" => connection_type::DIRECT.to_string(),
-		"relay" | "server" => connection_type::RELAY.to_string(),
-		"holepunch" | "hole-punch" | "hole_punched" => connection_type::HOLE_PUNCHED.to_string(),
-		_ => value.to_string(),
-	}
+    match value.to_lowercase().as_str() {
+        "p2p" | "peer" | "direct" => connection_type::DIRECT.to_string(),
+        "relay" | "server" => connection_type::RELAY.to_string(),
+        "holepunch" | "hole-punch" | "hole_punched" => connection_type::HOLE_PUNCHED.to_string(),
+        _ => value.to_string(),
+    }
 }
 
 /// Normalize sync direction to canonical value.
@@ -456,87 +461,87 @@ pub fn normalize_connection_type(value: &str) -> String {
 /// ```
 #[inline]
 pub fn normalize_sync_direction(value: &str) -> String {
-	match value.to_lowercase().as_str() {
-		"push" | "send" | "upload" => sync_direction::PUSH.to_string(),
-		"pull" | "receive" | "download" => sync_direction::PULL.to_string(),
-		"bidirectional" | "bidir" | "both" | "sync" => sync_direction::BIDIRECTIONAL.to_string(),
-		_ => value.to_string(),
-	}
+    match value.to_lowercase().as_str() {
+        "push" | "send" | "upload" => sync_direction::PUSH.to_string(),
+        "pull" | "receive" | "download" => sync_direction::PULL.to_string(),
+        "bidirectional" | "bidir" | "both" | "sync" => sync_direction::BIDIRECTIONAL.to_string(),
+        _ => value.to_string(),
+    }
 }
 
 /// Normalize sync type to canonical value.
 #[inline]
 pub fn normalize_sync_type(value: &str) -> String {
-	match value.to_lowercase().as_str() {
-		"full" | "snapshot" | "initial" => sync_type::SNAPSHOT.to_string(),
-		"delta" | "incremental" | "diff" => sync_type::INCREMENTAL.to_string(),
-		_ => value.to_string(),
-	}
+    match value.to_lowercase().as_str() {
+        "full" | "snapshot" | "initial" => sync_type::SNAPSHOT.to_string(),
+        "delta" | "incremental" | "diff" => sync_type::INCREMENTAL.to_string(),
+        _ => value.to_string(),
+    }
 }
 
 #[cfg(test)]
 mod tests {
-	use super::*;
+    use super::*;
 
-	#[test]
-	fn span_name_format() {
-		assert_eq!(span_name("sync", "peer1"), "sync peer1");
-		assert_eq!(span_name("connect", ""), "connect ");
-	}
+    #[test]
+    fn span_name_format() {
+        assert_eq!(span_name("sync", "peer1"), "sync peer1");
+        assert_eq!(span_name("connect", ""), "connect ");
+    }
 
-	#[test]
-	fn normalize_connection_type_spec_values() {
-		assert_eq!(normalize_connection_type("direct"), "direct");
-		assert_eq!(normalize_connection_type("relay"), "relay");
-		assert_eq!(normalize_connection_type("hole_punched"), "hole_punched");
-	}
+    #[test]
+    fn normalize_connection_type_spec_values() {
+        assert_eq!(normalize_connection_type("direct"), "direct");
+        assert_eq!(normalize_connection_type("relay"), "relay");
+        assert_eq!(normalize_connection_type("hole_punched"), "hole_punched");
+    }
 
-	#[test]
-	fn normalize_connection_type_aliases() {
-		assert_eq!(normalize_connection_type("p2p"), "direct");
-		assert_eq!(normalize_connection_type("peer"), "direct");
-		assert_eq!(normalize_connection_type("holepunch"), "hole_punched");
-		assert_eq!(normalize_connection_type("hole-punch"), "hole_punched");
-	}
+    #[test]
+    fn normalize_connection_type_aliases() {
+        assert_eq!(normalize_connection_type("p2p"), "direct");
+        assert_eq!(normalize_connection_type("peer"), "direct");
+        assert_eq!(normalize_connection_type("holepunch"), "hole_punched");
+        assert_eq!(normalize_connection_type("hole-punch"), "hole_punched");
+    }
 
-	#[test]
-	fn normalize_sync_direction_spec_values() {
-		assert_eq!(normalize_sync_direction("push"), "push");
-		assert_eq!(normalize_sync_direction("pull"), "pull");
-		assert_eq!(normalize_sync_direction("bidirectional"), "bidirectional");
-	}
+    #[test]
+    fn normalize_sync_direction_spec_values() {
+        assert_eq!(normalize_sync_direction("push"), "push");
+        assert_eq!(normalize_sync_direction("pull"), "pull");
+        assert_eq!(normalize_sync_direction("bidirectional"), "bidirectional");
+    }
 
-	#[test]
-	fn normalize_sync_direction_aliases() {
-		assert_eq!(normalize_sync_direction("send"), "push");
-		assert_eq!(normalize_sync_direction("receive"), "pull");
-		assert_eq!(normalize_sync_direction("bidir"), "bidirectional");
-	}
+    #[test]
+    fn normalize_sync_direction_aliases() {
+        assert_eq!(normalize_sync_direction("send"), "push");
+        assert_eq!(normalize_sync_direction("receive"), "pull");
+        assert_eq!(normalize_sync_direction("bidir"), "bidirectional");
+    }
 
-	#[test]
-	fn normalize_sync_type_spec_values() {
-		assert_eq!(normalize_sync_type("snapshot"), "snapshot");
-		assert_eq!(normalize_sync_type("incremental"), "incremental");
-	}
+    #[test]
+    fn normalize_sync_type_spec_values() {
+        assert_eq!(normalize_sync_type("snapshot"), "snapshot");
+        assert_eq!(normalize_sync_type("incremental"), "incremental");
+    }
 
-	#[test]
-	fn normalize_sync_type_aliases() {
-		assert_eq!(normalize_sync_type("full"), "snapshot");
-		assert_eq!(normalize_sync_type("delta"), "incremental");
-		assert_eq!(normalize_sync_type("diff"), "incremental");
-	}
+    #[test]
+    fn normalize_sync_type_aliases() {
+        assert_eq!(normalize_sync_type("full"), "snapshot");
+        assert_eq!(normalize_sync_type("delta"), "incremental");
+        assert_eq!(normalize_sync_type("diff"), "incremental");
+    }
 
-	#[test]
-	fn metric_names_follow_otel_conventions() {
-		assert!(METRIC_SYNC_TOTAL.contains('.'));
-		assert!(METRIC_PEERS_ACTIVE.contains('.'));
-	}
+    #[test]
+    fn metric_names_follow_otel_conventions() {
+        assert!(METRIC_SYNC_TOTAL.contains('.'));
+        assert!(METRIC_PEERS_ACTIVE.contains('.'));
+    }
 
-	#[test]
-	fn attribute_keys_match_otel_semconv() {
-		assert_eq!(ATTR_RPC_SYSTEM, "rpc.system");
-		assert_eq!(ATTR_RPC_METHOD, "rpc.method");
-		assert_eq!(ATTR_SERVER_ADDRESS, "server.address");
-		assert_eq!(ATTR_ERROR_TYPE, "error.type");
-	}
+    #[test]
+    fn attribute_keys_match_otel_semconv() {
+        assert_eq!(ATTR_RPC_SYSTEM, "rpc.system");
+        assert_eq!(ATTR_RPC_METHOD, "rpc.method");
+        assert_eq!(ATTR_SERVER_ADDRESS, "server.address");
+        assert_eq!(ATTR_ERROR_TYPE, "error.type");
+    }
 }

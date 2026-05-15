@@ -67,22 +67,22 @@ pub use config::ReplicatorConfig;
 pub use discovery::DiscoveryManager;
 pub use error::{Error, Result};
 pub use hook::{
-	LoggingStorageHook, NoOpStorageHook, QueryHook, ReplicatorRunner, StorageHook, SyncContext,
+    LoggingStorageHook, NoOpStorageHook, QueryHook, ReplicatorRunner, StorageHook, SyncContext,
 };
 pub use notify::{
-	ChangeEvent, ChangeEventType, ChangeNotifier, ChangeObserver, Subscription, SubscriptionFilter,
+    ChangeEvent, ChangeEventType, ChangeNotifier, ChangeObserver, Subscription, SubscriptionFilter,
 };
 pub use persist::{ChangeStore, ChangeStoreManager, FileChangeStore, MemoryChangeStore};
 pub use pool::{ConnectionPool, ConnectionPoolConfig, ConnectionPoolStats};
 pub use protocol::SurrealDbProtocol;
 pub use replicator::Replicator;
 pub use reputation::{
-	PeerReputation, ReputationConfig, ReputationFilter, ReputationManager, ReputationStats,
-	ReputationSummary,
+    PeerReputation, ReputationConfig, ReputationFilter, ReputationManager, ReputationStats,
+    ReputationSummary,
 };
 pub use retry::{RetryBudget, RetryConfig, RetryError, RetryOperation, RetryPolicy};
 pub use snapshot::{
-	DatabaseSnapshot, SnapshotChunk, SnapshotConfig, SnapshotExporter, SnapshotImporter,
+    DatabaseSnapshot, SnapshotChunk, SnapshotConfig, SnapshotExporter, SnapshotImporter,
 };
 pub use sync::{SyncManager, SyncSnapshot, SyncState};
 
