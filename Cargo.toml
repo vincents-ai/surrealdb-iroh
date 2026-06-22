@@ -29,7 +29,7 @@ futures = "0.3"
 futures-lite = "2.0"
 
 # Utilities
-n0-future = "0.2"
+n0-future = "0.3"
 parking_lot = "0.12"
 
 # Tracing for observability
