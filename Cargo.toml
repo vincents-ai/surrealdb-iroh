@@ -42,7 +42,7 @@ thiserror = "2.0"
 
 # Utilities
 uuid = { version = "1.6", features = ["v4", "serde"] }
-base64 = "0.22"
+base64 = "0.23"
 url = "2.5"
 
 # OpenTelemetry (optional)
